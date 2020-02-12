@@ -3,6 +3,7 @@ import multiprocessing
 import os
 import re
 import sys
+from itertools import product
 from timeit import default_timer as timer
 
 import el_controller
@@ -22,7 +23,7 @@ def is_resource(full_uri):
     return full_uri in name_spaces
 
 
-def index_rdf_folder(input_folder, config):
+def index_rdf_folder(input_folder):
     # bulk config - empirically set to 3500
     bulk_size = 3500
     prop_bulk_size = 3500
@@ -133,19 +134,26 @@ name_spaces = set()
 name_spaces.add("http://dbpedia.org/resource")
 
 
-def controller(config):
+def controller(config_f):
+
+    global config
+    config = config_f
+
     rdf_dir = config.rdf_dir
 
     # deploy index instances (currently set manually to 12)
     ttl_folders = []
+    print(rdf_dir)
     for ttl_folder in os.listdir(rdf_dir):
         ttl_folder = rdf_dir + "/" + ttl_folder
         if os.path.isdir(ttl_folder):
             ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
 
+    print(ttl_folders)
+
     start = timer()
-    p = multiprocessing.Pool(12)
-    p.map(index_rdf_folder, ttl_folders, config)
+    p = multiprocessing.Pool(3)
+    p.map(index_rdf_folder, ttl_folders)
 
     end = timer()
     print("elapsed time: ", (end - start))

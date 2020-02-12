@@ -135,6 +135,7 @@ def create_indexes(config):
     base_map = mappings.get_baseline(config)
     el_controller.create_index(config.base_index, base_map)
 
+    # create extended & properties indexes
     if config.ext:
         ext_map = mappings.get_extended(config)
         el_controller.create_index(config.ext_index, ext_map)
@@ -160,9 +161,41 @@ def main():
 
     # initialize & basic configuration
     el_controller.init(config.elastic_address, config.elastic_port)
-    # create_indexes(config)
-    index_baseline(config)
 
+    # print verification message
+    if (config.ext):
+        print("Elas4RDF: configuration file loaded successfully.\n"
+              "Create the following indexes: "
+              "\n\t 1. baseline - \'" + config.base_index +
+              "\' \n\t 2. extended - \'" + config.ext_index +
+              "\' \n\t 3. properties - " + str(config.ext_fields.keys()) +
+              "\nOther options: "
+              "\n\t base.include_uri: " + str(config.inc_uris) +
+              "\n\t base.include_namespace: " + str(config.inc_nspace) +
+              "\n\t ext.include_subject: " + str(config.ext_inc_sub) +
+              "\n\t ext.include_object: " + str(config.ext_inc_obj) +
+              "\n\t index.data: " + config.rdf_dir +
+              "\n\t elastic_address: " + config.elastic_address +
+              "\n\t elastic_port: " + config.elastic_port
+              )
+        raw_input("Press Enter to continue...")
+    else:
+        print("Elas4RDF: configuration file loaded successfully.\n"
+              "Create the following index: "
+              "\n\t 1. baseline - \'" + config.base_index +
+              "'\nOther options: "
+              "\n\t base.include_uri: " + str(config.inc_uris) +
+              "\n\t base.include_namespace: " + str(config.inc_nspace) +
+              "\n\t index.data: " + config.rdf_dir +
+              "\n\t elastic_address: " + config.elastic_address +
+              "\n\t elastic_port: " + config.elastic_port
+              )
+        raw_input("Press Enter to continue...")
+
+    # create index structures & start indexing
+    create_indexes(config)
+    index_baseline(config)
+    
 
 if __name__ == "__main__":
     main()
