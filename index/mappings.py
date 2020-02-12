@@ -79,6 +79,18 @@ def get_extended(config):
             ext_map['mappings']['_doc']['properties'][f]['analyzer'] = "m_analyzer"
 
     ## curl-command, used for debuggin
-    #curl_put += json.dumps(ext_map, indent=4, sort_keys=False) + '\''
+    # curl_put += json.dumps(ext_map, indent=4, sort_keys=False) + '\''
+
+    return ext_map
+
+
+def get_properties(field):
+    # load extended mapping from res
+    with open('res/mapping/properties.json') as file:
+        ext_map = json.load(file)
+
+    ext_map['mappings']['_doc']['properties'][field] = {}
+    ext_map['mappings']['_doc']['properties'][field]['type'] = "text"
+    ext_map['mappings']['_doc']['properties'][field]['analyzer'] = "m_analyzer"
 
     return ext_map

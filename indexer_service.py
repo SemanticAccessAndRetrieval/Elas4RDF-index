@@ -1,12 +1,10 @@
 import argparse
-import glob
-import multiprocessing
 import os
-import re
 import sys, csv
-from timeit import default_timer as timer
 
-import el_controller, mappings
+import el_controller
+from index import mappings, baseline
+
 
 # configuration file object
 class Configuration(object):
@@ -28,6 +26,10 @@ class Configuration(object):
 
 # initialize from configuration file
 def init_config_file(cfile):
+    if not os.path.isfile(cfile):
+        print('Error, ' + '\'' + cfile + '\'' + ' does not exist.')
+        sys.exit(-1)
+
     config = Configuration()
     with open(cfile) as tsvfile:
         tsvreader = csv.reader(tsvfile, delimiter="\t")
@@ -137,6 +139,15 @@ def create_indexes(config):
         ext_map = mappings.get_extended(config)
         el_controller.create_index(config.ext_index, ext_map)
 
+        for field in config.ext_fields.keys():
+            prop_map = mappings.get_properties(field)
+            el_controller.create_index(field, prop_map)
+
+
+# starts indexing for baseline
+def index_baseline(config):
+    baseline.controller(config)
+
 
 def main():
     # setting up arguments parser
@@ -149,7 +160,8 @@ def main():
 
     # initialize & basic configuration
     el_controller.init(config.elastic_address, config.elastic_port)
-    create_indexes(config)
+    # create_indexes(config)
+    index_baseline(config)
 
 
 if __name__ == "__main__":
