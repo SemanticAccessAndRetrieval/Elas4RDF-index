@@ -19,11 +19,7 @@ def get_name_space(triple_part, pre_flag):
     return n_space
 
 
-def is_resource(full_uri):
-    return full_uri in name_spaces
-
-
-def index_rdf_folder(input_folder):
+def baseline_index(input_folder):
     # bulk config - empirically set to 3500
     bulk_size = 3500
     prop_bulk_size = 3500
@@ -129,19 +125,13 @@ def index_rdf_folder(input_folder):
     print("--" + input_folder + ": finished")
 
 
-# known namespaces - resources (manually maintained)
-name_spaces = set()
-name_spaces.add("http://dbpedia.org/resource")
-
-
 def controller(config_f):
-
     global config
     config = config_f
 
     rdf_dir = config.rdf_dir
 
-    # deploy index instances (currently set manually to 12)
+    # deploy index instances (currently set manually to 5) TODO
     ttl_folders = []
     print(rdf_dir)
     for ttl_folder in os.listdir(rdf_dir):
@@ -152,8 +142,8 @@ def controller(config_f):
     print(ttl_folders)
 
     start = timer()
-    p = multiprocessing.Pool(3)
-    p.map(index_rdf_folder, ttl_folders)
+    p = multiprocessing.Pool(5)
+    p.map(baseline_index, ttl_folders)
 
     end = timer()
     print("elapsed time: ", (end - start))

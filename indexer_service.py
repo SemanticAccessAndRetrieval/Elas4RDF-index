@@ -3,7 +3,8 @@ import os
 import sys, csv
 
 import el_controller
-from index import mappings, baseline
+import elasticsearch
+from index import mappings, baseline, extended
 
 
 # configuration file object
@@ -131,24 +132,32 @@ def init_config_file(cfile):
 
 # create the ElasticSearch indexes - mappings
 def create_indexes(config):
-    # get mapping & create index
-    base_map = mappings.get_baseline(config)
-    el_controller.create_index(config.base_index, base_map)
+    try:
+        # get mapping & create index
+        base_map = mappings.get_baseline(config)
+        el_controller.create_index(config.base_index, base_map)
 
-    # create extended & properties indexes
-    if config.ext:
-        ext_map = mappings.get_extended(config)
-        el_controller.create_index(config.ext_index, ext_map)
+        # create extended & properties indexes
+        if config.ext:
+            ext_map = mappings.get_extended(config)
+            el_controller.create_index(config.ext_index, ext_map)
 
-        for field in config.ext_fields.keys():
-            prop_map = mappings.get_properties(field)
-            el_controller.create_index(field, prop_map)
+            for field in config.ext_fields.keys():
+                prop_map = mappings.get_properties(field)
+                el_controller.create_index(field, prop_map)
+
+    except elasticsearch.ElasticsearchException as e:
+        print('Elas4RDF error: could not create indexes: ' + str(e))
+        exit(-1)
 
 
 # starts indexing for baseline
 def index_baseline(config):
     baseline.controller(config)
 
+# starts indexing for baseline
+def index_extended(config):
+    extended.controller(config)
 
 def main():
     # setting up arguments parser
@@ -158,9 +167,6 @@ def main():
 
     # read configuration file
     config = init_config_file(args['config'])
-
-    # initialize & basic configuration
-    el_controller.init(config.elastic_address, config.elastic_port)
 
     # print verification message
     if (config.ext):
@@ -178,7 +184,6 @@ def main():
               "\n\t elastic_address: " + config.elastic_address +
               "\n\t elastic_port: " + config.elastic_port
               )
-        raw_input("Press Enter to continue...")
     else:
         print("Elas4RDF: configuration file loaded successfully.\n"
               "Create the following index: "
@@ -190,12 +195,21 @@ def main():
               "\n\t elastic_address: " + config.elastic_address +
               "\n\t elastic_port: " + config.elastic_port
               )
-        raw_input("Press Enter to continue...")
+    raw_input("Press Enter to continue...")
+
+    # initialize & basic configuration
+    try:
+        el_controller.init(config.elastic_address, config.elastic_port)
+    except elasticsearch.ElasticsearchException as e:
+        print('Elas4RDF error: could not initialize Elasticsearch: ' + str(e))
 
     # create index structures & start indexing
     create_indexes(config)
     index_baseline(config)
-    
+
+    if config.ext:
+        index_extended()
+
 
 if __name__ == "__main__":
     main()
