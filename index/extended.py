@@ -42,7 +42,7 @@ def extended_index(rdf_folder):
     bulk_size = 3500
 
     iter = 0
-    print("--" + rdf_folder + ": started")
+    print("\t " + rdf_folder + ": started")
 
     for ttl_file in glob.glob(rdf_folder + '/*.ttl'):
         with open(ttl_file) as fp:
@@ -145,7 +145,7 @@ def extended_index(rdf_folder):
     # flush any action that is left inside the bulk actions
     el_controller.bulk_action(bulk_actions)
 
-    print("--" + rdf_folder + ": finished")
+    print("\t " + rdf_folder + ": finished")
 
 
 ####################################################
@@ -169,7 +169,7 @@ def controller(config_f):
         if os.path.isdir(ttl_folder):
             ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
 
-    print(ttl_folders)
+    print("\t " + str(ttl_folders))
 
     start = timer()
     p = multiprocessing.Pool(5)

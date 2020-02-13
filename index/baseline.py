@@ -27,7 +27,7 @@ def baseline_index(input_folder):
     prop_bulk_actions = []
 
     iter = 0
-    print("--" + input_folder + ": started")
+    print("\t " + input_folder + ": started")
 
     # parse each .ttl file inside input folder
     for ttl_file in glob.glob(input_folder + '/*.ttl'):
@@ -122,8 +122,7 @@ def baseline_index(input_folder):
     el_controller.bulk_action(bulk_actions)
     el_controller.bulk_action(prop_bulk_actions)
 
-    print("--" + input_folder + ": finished")
-
+    print("\t " + input_folder + ": finished")
 
 def controller(config_f):
     global config
@@ -133,13 +132,12 @@ def controller(config_f):
 
     # deploy index instances (currently set manually to 5) TODO
     ttl_folders = []
-    print(rdf_dir)
     for ttl_folder in os.listdir(rdf_dir):
         ttl_folder = rdf_dir + "/" + ttl_folder
         if os.path.isdir(ttl_folder):
             ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
 
-    print(ttl_folders)
+    print("\t " + str(ttl_folders))
 
     start = timer()
     p = multiprocessing.Pool(5)

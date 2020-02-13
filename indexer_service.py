@@ -4,12 +4,13 @@ import sys, csv
 
 import el_controller
 import elasticsearch
-from index import mappings, baseline, extended
+from index import mappings, baseline, extended, print_message
 
 
 # configuration file object
 class Configuration(object):
     def __init__(self):
+        self.base = True
         self.base_index = "bindex"
         self.inc_uris = True
         self.inc_nspace = False
@@ -53,6 +54,16 @@ def init_config_file(cfile):
                     config.inc_nspace = True
                 elif line[1] == "no":
                     config.inc_nspace = False
+                else:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
+                        1] + ' not recognized.')
+                    sys.exit(-1)
+
+            elif line[0] == "indexing.baseline":
+                if line[1] == "yes":
+                    config.base = True
+                elif line[1] == "no":
+                    config.base = False
                 else:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
                         1] + ' not recognized.')
@@ -133,9 +144,10 @@ def init_config_file(cfile):
 # create the ElasticSearch indexes - mappings
 def create_indexes(config):
     try:
-        # get mapping & create index
-        base_map = mappings.get_baseline(config)
-        el_controller.create_index(config.base_index, base_map)
+        if config.base:
+            # get mapping & create index
+            base_map = mappings.get_baseline(config)
+            el_controller.create_index(config.base_index, base_map)
 
         # create extended & properties indexes
         if config.ext:
@@ -155,9 +167,11 @@ def create_indexes(config):
 def index_baseline(config):
     baseline.controller(config)
 
-# starts indexing for baseline
+
+# starts indexing for extended
 def index_extended(config):
     extended.controller(config)
+
 
 def main():
     # setting up arguments parser
@@ -169,32 +183,7 @@ def main():
     config = init_config_file(args['config'])
 
     # print verification message
-    if (config.ext):
-        print("Elas4RDF: configuration file loaded successfully.\n"
-              "Create the following indexes: "
-              "\n\t 1. baseline - \'" + config.base_index +
-              "\' \n\t 2. extended - \'" + config.ext_index +
-              "\' \n\t 3. properties - " + str(config.ext_fields.keys()) +
-              "\nOther options: "
-              "\n\t base.include_uri: " + str(config.inc_uris) +
-              "\n\t base.include_namespace: " + str(config.inc_nspace) +
-              "\n\t ext.include_subject: " + str(config.ext_inc_sub) +
-              "\n\t ext.include_object: " + str(config.ext_inc_obj) +
-              "\n\t index.data: " + config.rdf_dir +
-              "\n\t elastic_address: " + config.elastic_address +
-              "\n\t elastic_port: " + config.elastic_port
-              )
-    else:
-        print("Elas4RDF: configuration file loaded successfully.\n"
-              "Create the following index: "
-              "\n\t 1. baseline - \'" + config.base_index +
-              "'\nOther options: "
-              "\n\t base.include_uri: " + str(config.inc_uris) +
-              "\n\t base.include_namespace: " + str(config.inc_nspace) +
-              "\n\t index.data: " + config.rdf_dir +
-              "\n\t elastic_address: " + config.elastic_address +
-              "\n\t elastic_port: " + config.elastic_port
-              )
+    print_message.verification_message(config)
     raw_input("Press Enter to continue...")
 
     # initialize & basic configuration
@@ -203,13 +192,16 @@ def main():
     except elasticsearch.ElasticsearchException as e:
         print('Elas4RDF error: could not initialize Elasticsearch: ' + str(e))
 
-    # create index structures & start indexing
+    # create index mappings & structures
     create_indexes(config)
-    index_baseline(config)
 
+    # start indexing
+    if config.base:
+        index_baseline(config)
+        print_message.baseline_finised()
     if config.ext:
         index_extended()
-
+        print_message.extended_finished()
 
 if __name__ == "__main__":
     main()
