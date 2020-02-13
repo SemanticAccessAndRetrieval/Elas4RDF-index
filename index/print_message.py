@@ -8,7 +8,7 @@ def verification_message(config):
               "Create the following indexes: "
               "\n\t 1. baseline - \'" + config.base_index +
               "\' \n\t 2. extended - \'" + config.ext_index +
-              "\' \n\t 3. properties - " + str(config.ext_fields.keys()) +
+              "\' \n\t 3. properties - " + config.ext_fields.keys() +
               "\nOther options: "
               "\n\t base.include_uri: " + str(config.inc_uris) +
               "\n\t base.include_namespace: " + str(config.inc_nspace) +
@@ -22,6 +22,7 @@ def verification_message(config):
     elif config.base and not config.ext:
         print("Create the following index: "
               "\n\t 1. baseline - \'" + config.base_index +
+              "\' \n\t 2. properties - " + config.ext_fields.keys() +
               "'\nOther options: "
               "\n\t base.include_uri: " + str(config.inc_uris) +
               "\n\t base.include_namespace: " + str(config.inc_nspace) +
@@ -33,7 +34,6 @@ def verification_message(config):
     elif config.ext and not config.base:
         print("Create the following index: "
               "\n\t 1. extended - \'" + config.ext_index +
-              "\' \n\t 2. properties - " + str(config.ext_fields.keys()) +
               "\''\nOther options: "
               "\n\t ext.include_subject: " + str(config.ext_inc_sub) +
               "\n\t ext.include_object: " + str(config.ext_inc_obj) +
@@ -50,15 +50,16 @@ def baseline_finised(config):
     if config.ext:
         print("Elas4RDF: Successfully created indexes: "
               "\n\t 1. baseline - \'" + config.base_index +
-              "\'\n\t 2. properties - " + str(config.ext_fields.keys()) +
+              "\'\n\t 2. properties - " + config.ext_fields.keys() +
               "")
     else:
         print("Elas4RDF: Successfully created index: "
               "\n\t 1. baseline - \'" + config.base_index +
               "")
 
+
 def extended_finished(config):
     print("Elas4RDF: Successfully created index: " +
           "\n\t 1. baseline - \'" + config.base_index +
-          "\'\n\t\t with extended fields - " + str(config.ext_fields.keys()) +
+          "\'\n\t\t with extended fields - " + config.ext_fields.keys() +
           "")

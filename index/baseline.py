@@ -69,29 +69,27 @@ def baseline_index(input_folder):
                 elif "#" in contents[2]:
                     obj_keywords = contents[2].rsplit('#', 1)[-1].replace(":", "")[:-2]
 
-                if config.ext:
+                # if predicate-property is included in ext_fields - build properties indexes
+                if contents[1] in config.ext_fields.values():
 
-                    # if predicate-property is included in properties-files config
-                    if contents[1] in config.ext_fields.values():
+                    # get field-prop name
+                    field_prop = {v: k for k, v in config.ext_fields.items()}[contents[1]]
 
-                        # get field-prop name
-                        field_prop = {v: k for k, v in config.ext_fields.items()}[contents[1]]
+                    # create a property - document
+                    prop_doc = {"resource_terms": sub_keywords, field_prop: obj_keywords}
 
-                        # create a property - document
-                        prop_doc = {"resource_terms": sub_keywords, field_prop: obj_keywords}
+                    # add insert action
+                    prop_action = {
+                        "_index": field_prop,
+                        '_op_type': 'index',
+                        "_type": "_doc",
+                        "_source": prop_doc
+                    }
 
-                        # add insert action
-                        prop_action = {
-                            "_index": field_prop,
-                            '_op_type': 'index',
-                            "_type": "_doc",
-                            "_source": prop_doc
-                        }
-
-                        prop_bulk_actions.append(prop_action)
-                        if len(prop_bulk_actions) > prop_bulk_size:
-                            el_controller.bulk_action(prop_bulk_actions)
-                            del prop_bulk_actions[0:len(prop_bulk_actions)]
+                    prop_bulk_actions.append(prop_action)
+                    if len(prop_bulk_actions) > prop_bulk_size:
+                        el_controller.bulk_action(prop_bulk_actions)
+                        del prop_bulk_actions[0:len(prop_bulk_actions)]
 
                 # create a triple - document
                 doc = {"subjectKeywords": sub_keywords, "predicateKeywords": pred_keywords,
@@ -123,6 +121,7 @@ def baseline_index(input_folder):
     el_controller.bulk_action(prop_bulk_actions)
 
     print("\t " + input_folder + ": finished")
+
 
 def controller(config_f):
     global config

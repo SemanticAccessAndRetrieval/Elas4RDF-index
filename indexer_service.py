@@ -14,6 +14,7 @@ class Configuration(object):
         self.base_index = "bindex"
         self.inc_uris = True
         self.inc_nspace = False
+        self.prop = False
 
         self.ext = False
         self.ext_index = ""
@@ -69,6 +70,16 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
+            elif line[0] == "indexing.properties.index":
+                if line[1] == "yes":
+                    config.prop = True
+                elif line[1] == "no":
+                    config.prop = False
+                else:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
+                        1] + ' not recognized.')
+                    sys.exit(-1)
+
             elif line[0] == "indexing.extend":
                 if line[1] == "yes":
                     config.ext = True
@@ -78,7 +89,6 @@ def init_config_file(cfile):
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
                         1] + ' not recognized.')
                     sys.exit(-1)
-
 
             elif line[0] == "indexing.ext.name":
                 config.ext_index = line[1]
@@ -149,14 +159,15 @@ def create_indexes(config):
             base_map = mappings.get_baseline(config)
             el_controller.create_index(config.base_index, base_map)
 
+            if config.prop:
+                for field in config.ext_fields.keys():
+                    prop_map = mappings.get_properties(field)
+                    el_controller.create_index(field, prop_map)
+
         # create extended & properties indexes
         if config.ext:
             ext_map = mappings.get_extended(config)
             el_controller.create_index(config.ext_index, ext_map)
-
-            for field in config.ext_fields.keys():
-                prop_map = mappings.get_properties(field)
-                el_controller.create_index(field, prop_map)
 
     except elasticsearch.ElasticsearchException as e:
         print('Elas4RDF error: could not create indexes: ' + str(e))
@@ -176,7 +187,7 @@ def index_extended(config):
 def main():
     # setting up arguments parser
     parser = argparse.ArgumentParser(description='\'Indexer for generating the baseline and/or extended index\'')
-    parser.add_argument('-config', help='"specify the .config file', required=True)
+    parser.add_argument('-config', help='"specify the config file(.tsv)', required=True)
     args = vars(parser.parse_args())
 
     # read configuration file
@@ -198,10 +209,11 @@ def main():
     # start indexing
     if config.base:
         index_baseline(config)
-        print_message.baseline_finised()
+        print_message.baseline_finised(config)
     if config.ext:
-        index_extended()
-        print_message.extended_finished()
+        index_extended(config)
+        print_message.extended_finished(config)
+
 
 if __name__ == "__main__":
     main()
