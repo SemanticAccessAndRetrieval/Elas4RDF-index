@@ -1,13 +1,10 @@
-import sys
-from elasticsearch import Elasticsearch
 import json
-
 
 def get_baseline(config):
     # prepare curl-commands
-    curl_put = 'curl -XPUT ' + '"' + config.elastic_address + ":" + config.elastic_port + "/" + config.base_index + '" ' + '-H \'Content-Type: application/json\' -d\''
+    # curl_put = 'curl -XPUT ' + '"' + config.elastic_address + ":" + config.elastic_port + "/" + config.base_index + '" ' + '-H \'Content-Type: application/json\' -d\''
 
-    # load baseline mapping from res
+    # load extended mapping from res
     with open('res/mapping/baseline.json') as file:
         base_map = json.load(file)
 
@@ -39,7 +36,7 @@ def get_baseline(config):
 
 def get_extended(config):
     # prepare curl-commands
-    curl_put = 'curl -XPUT ' + '"' + config.elastic_address + ":" + config.elastic_port + "/" + config.ext_index + '" ' + '-H \'Content-Type: application/json\' -d\''
+    # curl_put = 'curl -XPUT ' + '"' + config.elastic_address + ":" + config.elastic_port + "/" + config.ext_index + '" ' + '-H \'Content-Type: application/json\' -d\''
 
     # load extended mapping from res
     with open('res/mapping/extended.json') as file:

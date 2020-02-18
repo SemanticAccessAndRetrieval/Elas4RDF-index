@@ -1,12 +1,12 @@
-import argparse
 import glob
-import multiprocessing
 import os
-import re
-import sys
+from pathlib import Path
 from timeit import default_timer as timer
+from multiprocessing import Pool, Manager
 
+import elasticsearch
 import el_controller
+from index import print_message
 
 
 def get_name_space(triple_part, pre_flag):
@@ -41,8 +41,8 @@ def extended_index(rdf_folder):
     bulk_actions = []
     bulk_size = 3500
 
-    iter = 0
-    print("\t " + rdf_folder + ": started")
+    if (config.verbose):
+        print("\t " + rdf_folder + ": started")
 
     for ttl_file in glob.glob(rdf_folder + '/*.ttl'):
         with open(ttl_file) as fp:
@@ -99,7 +99,7 @@ def extended_index(rdf_folder):
                             doc[prop_name + "_sub"] = prop_maps[sub_keywords]
 
                         else:
-                            prop_res = el_controller.search(prop_name, '', 150, get_property(sub_keywords))
+                            prop_res = el_controller.search(prop_name, 150, get_property(sub_keywords))
                             doc[prop_name + "_sub"] = []
 
                             for prop_hit in prop_res['hits']['hits']:
@@ -108,7 +108,7 @@ def extended_index(rdf_folder):
                             prop_maps[sub_keywords] = doc[prop_name + "_sub"]
 
                 # retrieve all object's properties (described in ext_fields)
-                if config.ext_inc_obj == 1 and is_resource(obj_nspace):
+                if config.ext_inc_obj and is_resource(obj_nspace):
 
                     for prop_name in config.ext_fields.keys():
 
@@ -117,35 +117,54 @@ def extended_index(rdf_folder):
 
                         else:
 
-                            prop_res = el_controller.search(prop_name, '', 150, get_property(obj_keywords))
+                            prop_res = el_controller.search(prop_name, 150, get_property(obj_keywords))
                             doc[prop_name + "_obj"] = []
                             for prop_hit in prop_res['hits']['hits']:
                                 doc[prop_name + "_obj"].append(" " + prop_hit["_source"][prop_name])
 
                             prop_maps[obj_keywords] = doc[prop_name + "_obj"]
 
-                # add insert action
-                action = {
-                    "_index": config.ext_index,
-                    '_op_type': 'index',
-                    "_type": "_doc",
-                    "_source": doc
-                }
+                try:
+                    # add insert action
+                    action = {
+                        "_index": config.ext_index,
+                        '_op_type': 'index',
+                        "_type": "_doc",
+                        "_source": doc
+                    }
 
-                bulk_actions.append(action)
-                if len(bulk_actions) > bulk_size:
-                    el_controller.bulk_action(bulk_actions)
-                    del bulk_actions[0:len(bulk_actions)]
+                    bulk_actions.append(action)
+                    if len(bulk_actions) > bulk_size:
+                        el_controller.bulk_action(bulk_actions)
+                        del bulk_actions[0:len(bulk_actions)]
 
-                iter += 1
-                if iter % 1000000 == 0:
-                    print("Iter: ", iter, " -- " + rdf_folder)
+                except elasticsearch.ElasticsearchException as es:
+                    print("Elas4RDF: Exception occured, skipping file: " + ttl_file)
+                    if (config.verbose):
+                        print(str(es))
+
                 line = fp.readline()
+                ####
+
+        global finished_files
+        global total_files
+        finished_files.append(ttl_file)
+
+        # print progress information
+        if len(finished_files) == len(total_files):
+            p_str = ""
+        else:
+            p_str = "\r"
+        print("\t Files : " + str(len(finished_files)) + " / " +
+              str(len(total_files)) + " , triples indexed: " + str(
+            el_controller.count_docs(config.ext_index)) + p_str,
+              end="")
 
     # flush any action that is left inside the bulk actions
     el_controller.bulk_action(bulk_actions)
 
-    print("\t " + rdf_folder + ": finished")
+    if (config.verbose):
+        print("\t " + rdf_folder + ": finished")
 
 
 ####################################################
@@ -162,18 +181,28 @@ def controller(config_f):
 
     rdf_dir = config.rdf_dir
 
-    # deploy index instances (currently set manually to 5) TODO
+    # count.ttl files
+    global total_files
+    total_files = []
+    for path in Path(rdf_dir).rglob('*.ttl'):
+        total_files.append(str(path.absolute()))
+
+    print_message.extended_starting(config, str(len(total_files)))
+
     ttl_folders = []
     for ttl_folder in os.listdir(rdf_dir):
         ttl_folder = rdf_dir + "/" + ttl_folder
         if os.path.isdir(ttl_folder):
             ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
 
-    print("\t " + str(ttl_folders))
-
     start = timer()
-    p = multiprocessing.Pool(5)
+
+    # deploy index instances (as indicated in indexing.instances in -config)
+    manager = Manager()
+    global finished_files
+    finished_files = manager.list()
+    p = Pool(config.instances)
     p.map(extended_index, ttl_folders)
 
     end = timer()
-    print("elapsed time: ", (end - start))
+    print_message.extended_finished(config, str((end - start)))

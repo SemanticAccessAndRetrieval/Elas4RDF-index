@@ -1,12 +1,12 @@
 import glob
-import multiprocessing
 import os
-import re
-import sys
-from itertools import product
+from pathlib import Path
 from timeit import default_timer as timer
+from multiprocessing import Pool, Manager
 
+import elasticsearch
 import el_controller
+from index import print_message
 
 
 # extract name-space from an input URI
@@ -19,15 +19,17 @@ def get_name_space(triple_part, pre_flag):
     return n_space
 
 
+# main method for indexing - accepts an input folder of .ttl files
 def baseline_index(input_folder):
     # bulk config - empirically set to 3500
     bulk_size = 3500
     prop_bulk_size = 3500
     bulk_actions = []
     prop_bulk_actions = []
+    global config
 
-    iter = 0
-    print("\t " + input_folder + ": started")
+    if (config.verbose):
+        print("\t " + input_folder + ": started")
 
     # parse each .ttl file inside input folder
     for ttl_file in glob.glob(input_folder + '/*.ttl'):
@@ -70,7 +72,7 @@ def baseline_index(input_folder):
                     obj_keywords = contents[2].rsplit('#', 1)[-1].replace(":", "")[:-2]
 
                 # if predicate-property is included in ext_fields - build properties indexes
-                if contents[1] in config.ext_fields.values():
+                if config.prop and contents[1] in config.ext_fields.values():
 
                     # get field-prop name
                     field_prop = {v: k for k, v in config.ext_fields.items()}[contents[1]]
@@ -96,31 +98,49 @@ def baseline_index(input_folder):
                        "objectKeywords": obj_keywords, "subjectNspaceKeys": sub_nspace,
                        "predicateNspaceKeys": pred_nspace, "objectNspaceKeys": obj_nspace}
 
-                # add insert action
-                action = {
-                    "_index": config.base_index,
-                    '_op_type': 'index',
-                    "_type": "_doc",
-                    "_source": doc
-                }
+                try:
+                    # add insert action
+                    action = {
+                        "_index": config.base_index,
+                        '_op_type': 'index',
+                        "_type": "_doc",
+                        "_source": doc
+                    }
 
-                bulk_actions.append(action)
-                if len(bulk_actions) > bulk_size:
-                    el_controller.bulk_action(bulk_actions)
-                    del bulk_actions[0:len(bulk_actions)]
+                    bulk_actions.append(action)
+                    if len(bulk_actions) > bulk_size:
+                        el_controller.bulk_action(bulk_actions)
+                        del bulk_actions[0:len(bulk_actions)]
 
-                #### monitor output ####
-                iter += 1
-                if iter % 1000000 == 0:
-                    print("Iter: ", iter, " -- " + input_folder)
+                except elasticsearch.ElasticsearchException as es:
+
+                    print("Elas4RDF: Exception occured, skipping file: " + ttl_file)
+                    if (config.verbose):
+                        print(str(es))
+
                 line = fp.readline()
                 ####
+
+        global finished_files
+        global total_files
+        finished_files.append(ttl_file)
+
+       # print progress information
+        if len(finished_files) == len(total_files):
+            p_str = ""
+        else:
+            p_str = "\r"
+        print("\t Files : " + str(len(finished_files)) + " / " +
+              str(len(total_files)) + " , triples indexed: " + str(
+            el_controller.count_docs(config.base_index)) + p_str,
+              end="")
 
     # flush any action that is left inside the bulk actions
     el_controller.bulk_action(bulk_actions)
     el_controller.bulk_action(prop_bulk_actions)
 
-    print("\t " + input_folder + ": finished")
+    if (config.verbose):
+        print("\t " + input_folder + ": finished")
 
 
 def controller(config_f):
@@ -129,18 +149,28 @@ def controller(config_f):
 
     rdf_dir = config.rdf_dir
 
-    # deploy index instances (currently set manually to 5) TODO
+    # count.ttl files
+    global total_files
+    total_files = []
+    for path in Path(rdf_dir).rglob('*.ttl'):
+        total_files.append(str(path.absolute()))
+
+    print_message.baseline_starting(config, str(len(total_files)))
+
     ttl_folders = []
     for ttl_folder in os.listdir(rdf_dir):
         ttl_folder = rdf_dir + "/" + ttl_folder
         if os.path.isdir(ttl_folder):
             ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
 
-    print("\t " + str(ttl_folders))
-
     start = timer()
-    p = multiprocessing.Pool(5)
+
+    # deploy index instances (as indicated in indexing.instances in -config)
+    manager = Manager()
+    global finished_files
+    finished_files = manager.list()
+    p = Pool(config.instances)
     p.map(baseline_index, ttl_folders)
 
     end = timer()
-    print("elapsed time: ", (end - start))
+    print_message.baseline_finised(config, str((end - start)))

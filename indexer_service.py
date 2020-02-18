@@ -23,8 +23,11 @@ class Configuration(object):
         self.ext_inc_obj = True
 
         self.rdf_dir = ""
+        self.instances = 5
         self.elastic_address = "http://localhost"
         self.elastic_port = "9200"
+
+        self.verbose = False
 
 
 # initialize from configuration file
@@ -130,18 +133,41 @@ def init_config_file(cfile):
                     sys.exit(-1)
 
             elif line[0] == "indexing.data":
-                if not os.path.isdir(line[1]):
+                if os.path.isdir(line[1]):
+                    config.rdf_dir = line[1]
+                else:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
                         1] + ' not a proper folder.')
                     sys.exit(-1)
-                else:
-                    config.rdf_dir = line[1]
+
+            elif line[0] == "indexing.instances":
+                try:
+                    config.instances = int(line[1])
+                except ValueError:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
+                        1] + ' not an integer')
+                    sys.exit(-1)
 
             elif line[0] == "elastic.address":
                 config.elastic_address = line[1]
 
             elif line[0] == "elastic.port":
-                config.elastic_port = line[1]
+                try:
+                    config.elastic_port = int(line[1])
+                except ValueError:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
+                        1] + ' not an integer')
+                    sys.exit(-1)
+
+            elif line[0] == "verbose":
+                if line[1] == "yes":
+                    config.verbose = True
+                elif line[1] == "no":
+                    config.verbose = False
+                else:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
+                        1] + ' not recognized.')
+                    sys.exit(-1)
 
             else:
                 print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
@@ -195,7 +221,6 @@ def main():
 
     # print verification message
     print_message.verification_message(config)
-    raw_input("Press Enter to continue...")
 
     # initialize & basic configuration
     try:
@@ -209,10 +234,8 @@ def main():
     # start indexing
     if config.base:
         index_baseline(config)
-        print_message.baseline_finised(config)
     if config.ext:
         index_extended(config)
-        print_message.extended_finished(config)
 
 
 if __name__ == "__main__":
