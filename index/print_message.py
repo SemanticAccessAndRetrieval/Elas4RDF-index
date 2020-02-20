@@ -45,17 +45,19 @@ def baseline_process(stats):
     pass
 
 
-def baseline_finised(config, stats):
-    if config.ext:
+def baseline_finised(config, stats, docs_num):
+    if config.prop:
         print("Elas4RDF: Successfully created indexes: "
-              "\n\t 1. baseline - \'" + config.base_index +
-              "\'\n\t 2. properties - " + str(config.ext_fields.keys()) +
+              "\n\t 1. baseline - \'" + config.base_index + "\'" + " (" + str(docs_num) + " triples)" +
+              "\n\t 2. properties - " + str(config.ext_fields.keys()) +
               "")
     else:
         print("Elas4RDF: Successfully created index: "
-              "\n\t 1. baseline - \'" + config.base_index +
+              "\n\t 1. baseline - \'" + config.base_index + "\' " + "(" + str(docs_num) + " triples)" +
               "")
-    print("elapsed time " + stats)
+
+    if config.verbose:
+        print("\telapsed time " + stats)
 
 
 def extended_starting(config, stats):
@@ -67,10 +69,11 @@ def extended_process(stats):
     pass
 
 
-def extended_finished(config, stats):
+def extended_finished(config, stats, docs_num):
     print("Elas4RDF: Successfully created index: " +
-          "\n\t 1. baseline - \'" + config.base_index +
-          "\'\n\t\t with extended fields - " + str(config.ext_fields.keys()) +
+          "\n\t 1. extended - \'" + config.ext_index + "\' " + "(" + str(docs_num) + " triples)" +
+          "\n\t\t with extended fields - " + str(config.ext_fields.keys()) +
           "")
-    print("elapsed time " + stats)
 
+    if config.verbose:
+        print("\telapsed time " + stats)

@@ -150,18 +150,17 @@ def extended_index(rdf_folder):
         global total_files
         finished_files.append(ttl_file)
 
-        # print progress information
-        if len(finished_files) == len(total_files):
-            p_str = ""
-        else:
-            p_str = "\r"
-        print("\t Files : " + str(len(finished_files)) + " / " +
-              str(len(total_files)) + " , triples indexed: " + str(
-            el_controller.count_docs(config.ext_index)) + p_str,
-              end="")
-
-    # flush any action that is left inside the bulk actions
-    el_controller.bulk_action(bulk_actions)
+    # print progress information
+    if len(finished_files) == len(total_files):
+        p_str = ""
+        end = "\n\n"
+    else:
+        p_str = "\r"
+        end = ""
+    print("\t Files : " + str(len(finished_files)) + " / " +
+          str(len(total_files)) + " , triples indexed: " + str(
+        el_controller.count_docs(config.ext_index)) + p_str,
+          end=end)
 
     if (config.verbose):
         print("\t " + rdf_folder + ": finished")
@@ -205,4 +204,6 @@ def controller(config_f):
     p.map(extended_index, ttl_folders)
 
     end = timer()
-    print_message.extended_finished(config, str((end - start)))
+
+    docs_e = el_controller.count_docs(config.ext_index)
+    print_message.extended_finished(config, str((end - start)), docs_e)
