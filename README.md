@@ -47,7 +47,7 @@ indexing.data	<RDF_dir>
 elastic.address	<host_name>
 elastic.port	<port_number>
 ```
-
+Examples of configuration files are included in ```res/configuration```. 
 
 
 Note that RDF files are expected to be in the form of triples (.ttl).
