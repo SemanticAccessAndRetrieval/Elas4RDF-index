@@ -1,6 +1,8 @@
-# Elas4RDF
+# Elas4RDF - index service
 
-Performs keyword search over **RDF** data, with classic IR techniques, upon triple-based  documents using **Elasticsearch** (ES). 
+Performs **keyword** search over **RDF** data, with classic IR techniques, upon triple-based documents using **Elasticsearch** (ES). 
+
+Models two different indexing perspectives in both of which each ES doc represents a triple.
 Models two different indexing perspectives in both of which each ES doc represents a triple.
 
 1. *baseline* : only  makes use  of  the  information  that  exists  in  the  triple’s  three  components  (subject, predicate, object). In case the value of one of the components is a URI, the URI is tokenized into keywords.
@@ -8,7 +10,7 @@ Models two different indexing perspectives in both of which each ES doc represen
 2. *extended* : extends baseline document by including additional information for each triple component (if it is a resource - URI). Additional information corresponds to values of properties that can be given as input (e.g. *rdfs:comment*).
 
 
-This project automates the indexing process and can applied over any environment that runs Elasticsearch & Python3.
+This project automates the indexing process and can be applied over any environment that runs Elasticsearch & Python3.
 ### Setup
 Download an Elastic search package  (e.g. v=elasticsearch-6.8.0). After extracting all contents, start an instance:
 ```
@@ -17,7 +19,7 @@ Download an Elastic search package  (e.g. v=elasticsearch-6.8.0). After extracti
 
 Next, install all requirements needed for our scripts as described in requirements.txt:
 ```
-  pip install -r requirements.txt
+  pip3 install -r requirements.txt
 ```
 
 ## Indexer service 
