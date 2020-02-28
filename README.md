@@ -3,7 +3,6 @@
 Performs **keyword** search over **RDF** data, with classic IR techniques, upon triple-based documents using **Elasticsearch** (ES). 
 
 Models two different indexing perspectives in both of which each ES doc represents a triple.
-Models two different indexing perspectives in both of which each ES doc represents a triple.
 
 1. *baseline* : only  makes use  of  the  information  that  exists  in  the  triple’s  three  components  (subject, predicate, object). In case the value of one of the components is a URI, the URI is tokenized into keywords.
 
