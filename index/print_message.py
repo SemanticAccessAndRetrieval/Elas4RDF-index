@@ -17,8 +17,8 @@ def verification_message(config):
     if config.ext:
         print("\n\t extended - \'" + config.ext_index + "\'", end='')
         options_str += "\n\t ext.include_subject: " + str(config.ext_inc_sub) + \
-                       "\n\t ext.include_object: " + str(
-            config.ext_inc_obj)
+                       "\n\t ext.include_predicate: " + str(config.ext_inc_pre) + \
+                       "\n\t ext.include_object: " + str(config.ext_inc_obj)
 
     if not config.base and not config.ext:
         print("No indexes are enabled, see configuration (baseline & extended -> no). Exiting.")

@@ -10,6 +10,7 @@ def get_baseline(config):
 
     if config.inc_uris:
         pass
+
     else:
         base_map['mappings']['_doc']['properties']['subjectKeywords']['enabled'] = False
         base_map['mappings']['_doc']['properties']['predicateKeywords']['enabled'] = False
@@ -69,7 +70,13 @@ def get_extended(config):
             ext_map['mappings']['_doc']['properties'][f]['type'] = "text"
             ext_map['mappings']['_doc']['properties'][f]['analyzer'] = "m_analyzer"
 
-        if config.ext_inc_sub:
+        if config.ext_inc_pre:
+            f = field + "_pre"
+            ext_map['mappings']['_doc']['properties'][f] = {}
+            ext_map['mappings']['_doc']['properties'][f]['type'] = "text"
+            ext_map['mappings']['_doc']['properties'][f]['analyzer'] = "m_analyzer"
+
+        if config.ext_inc_obj:
             f = field + "_obj"
             ext_map['mappings']['_doc']['properties'][f] = {}
             ext_map['mappings']['_doc']['properties'][f]['type'] = "text"

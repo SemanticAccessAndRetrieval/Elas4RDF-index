@@ -1,5 +1,6 @@
 import glob
 import os
+import time
 from pathlib import Path
 from timeit import default_timer as timer
 from multiprocessing import Pool, Manager
@@ -153,7 +154,8 @@ def extended_index(rdf_folder):
     # print progress information
     if len(finished_files) == len(total_files):
         p_str = ""
-        end = "\n\n"
+        end = "\n"
+        time.sleep(5)
     else:
         p_str = "\r"
         end = ""

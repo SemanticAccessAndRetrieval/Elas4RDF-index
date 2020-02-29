@@ -20,6 +20,7 @@ class Configuration(object):
         self.ext_index = ""
         self.ext_fields = {}
         self.ext_inc_sub = True
+        self.ext_inc_pre = True
         self.ext_inc_obj = True
 
         self.rdf_dir = ""
@@ -117,6 +118,16 @@ def init_config_file(cfile):
                     config.ext_inc_sub = True
                 elif line[1] == "no":
                     config.ext_inc_sub = False
+                else:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
+                        1] + ' not recognized.')
+                    sys.exit(-1)
+
+            elif line[0] == "indexing.ext.include_pre":
+                if line[1] == "yes":
+                    config.ext_inc_pre = True
+                elif line[1] == "no":
+                    config.ext_inc_pre = False
                 else:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
                         1] + ' not recognized.')
