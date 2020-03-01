@@ -27,3 +27,7 @@ def delete_index(index_name):
 
 def count_docs(index_name):
     return int(es.cat.count(index=index_name).split(" ")[2])
+
+
+def index_exists(index_name):
+    return es.indices.exists(index=index_name)

@@ -74,16 +74,6 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.properties.index":
-                if line[1] == "yes":
-                    config.prop = True
-                elif line[1] == "no":
-                    config.prop = False
-                else:
-                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
-                        1] + ' not recognized.')
-                    sys.exit(-1)
-
             elif line[0] == "indexing.extend":
                 if line[1] == "yes":
                     config.ext = True
@@ -112,6 +102,7 @@ def init_config_file(cfile):
                         field_name = contents[0]
                         field = contents[1]
                         config.ext_fields[field_name] = field
+                        config.prop = True
 
             elif line[0] == "indexing.ext.include_sub":
                 if line[1] == "yes":
@@ -221,6 +212,22 @@ def index_extended(config):
     extended.controller(config)
 
 
+# verifies properties-indexes exist before starting extended
+def properties_exist(config):
+    exist = True
+    index_missing = []
+    for field in config.ext_fields.keys():
+        if not el_controller.index_exists(field):
+            index_missing.append(field)
+            exist = False
+
+    if not exist:
+        print('Elas4RDF error, could not create \'' + str(config.ext_index) + '\'.'
+              ' Missing properties-index(es): ' , index_missing , ". Start baseline indexing process again.")
+
+    return exist
+
+
 def main():
     # setting up arguments parser
     parser = argparse.ArgumentParser(description='\'Indexer for generating the baseline and/or extended index\'')
@@ -246,7 +253,10 @@ def main():
     if config.base:
         index_baseline(config)
     if config.ext:
-        index_extended(config)
+        if properties_exist(config):
+            index_extended(config)
+        else:
+            exit(-1)
 
 
 if __name__ == "__main__":
