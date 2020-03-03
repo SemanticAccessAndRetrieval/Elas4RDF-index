@@ -175,11 +175,8 @@ def controller(config_f):
 
     print_message.baseline_starting(config, str(len(total_files)))
 
-    ttl_folders = []
-    for ttl_folder in os.listdir(rdf_dir):
-        ttl_folder = rdf_dir + "/" + ttl_folder
-        if os.path.isdir(ttl_folder):
-            ttl_folders += [os.path.join(ttl_folder, f) for f in os.listdir(ttl_folder)]
+    # list all .ttl files of input RDF_DIRs
+    all_files = glob.glob(rdf_dir + '/**/*.ttl', recursive=True)
 
     start = timer()
 
