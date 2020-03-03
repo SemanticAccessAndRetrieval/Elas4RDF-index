@@ -223,7 +223,8 @@ def properties_exist(config):
 
     if not exist:
         print('Elas4RDF error, could not create \'' + str(config.ext_index) + '\'.'
-              ' Missing properties-index(es): ' , index_missing , ". Start baseline indexing process again.")
+                                                                              ' Missing properties-index(es): ',
+              index_missing, ". Start baseline indexing process again.")
 
     return exist
 

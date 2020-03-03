@@ -1,5 +1,5 @@
 import glob
-import os
+import re
 import time
 from pathlib import Path
 from timeit import default_timer as timer
@@ -10,8 +10,8 @@ import el_controller
 from index import print_message
 
 
-def get_name_space(triple_part, pre_flag):
-    if pre_flag:
+def get_name_space(triple_part, pred_flag):
+    if pred_flag:
         n_space = triple_part.rsplit('#', 1)[0]
     else:
         n_space = triple_part.rsplit('/', 1)[0]
@@ -21,6 +21,11 @@ def get_name_space(triple_part, pre_flag):
 
 def is_resource(full_uri):
     return full_uri in name_spaces
+
+
+# if a prefix is included in uri
+def contains_prefix(uri):
+    return uri.rsplit(':', 1)[0].__contains__(":")
 
 
 def get_property(entity):

@@ -1,5 +1,5 @@
 import glob
-import os
+import re
 import time
 from pathlib import Path
 from timeit import default_timer as timer
@@ -11,14 +11,17 @@ from index import print_message
 
 
 # extract name-space from an input URI
-def get_name_space(triple_part, pre_flag):
-    if pre_flag:
+def get_name_space(triple_part, pred_flag):
+    if pred_flag:
         n_space = triple_part.rsplit('#', 1)[0]
     else:
         n_space = triple_part.rsplit('/', 1)[0]
 
     return n_space
 
+# is a prefix included in uri
+def contains_prefix(uri):
+    return uri.rsplit(':', 1)[0].__contains__(":")
 
 # main method for indexing - accepts an input file
 def baseline_index(input_file):
@@ -37,6 +40,7 @@ def baseline_index(input_file):
         line = fp.readline()
         while line:
 
+            # not a valid .ttl line
             if "<" not in line:
                 line = fp.readline()
                 continue
@@ -49,8 +53,13 @@ def baseline_index(input_file):
                 continue
 
             # handle subject
-            sub_keywords = contents[0].rsplit('/', 1)[-1].replace(":", "")
-            sub_nspace = get_name_space(contents[0], False)
+            if contains_prefix(contents[0]):
+                split_prefix = contents[0].rsplit(':', 1)
+                sub_keywords = split_prefix[0].split("/")[-1] + ":" + split_prefix[1]
+                sub_nspace = ''.join(re.split("(/)", split_prefix[0])[:-1])
+            else:
+                sub_keywords = contents[0].rsplit('/', 1)[-1].replace(":", "")
+                sub_nspace = get_name_space(contents[0], False)
 
             # handle predicate
             if "#" not in contents[1]:
@@ -65,10 +74,16 @@ def baseline_index(input_file):
                 obj_keywords = contents[2].replace("\"", " ")[:-2]
                 obj_nspace = ""
             elif "/" in contents[2]:
-                obj_keywords = contents[2].rsplit('/', 1)[-1].replace(":", "")[:-2]
-                obj_nspace = get_name_space(contents[2], False)
+                if contains_prefix(contents[2]):
+                    split_prefix = contents[2].rsplit(':', 1)
+                    obj_keywords = split_prefix[0].split("/")[-1] + ":" + split_prefix[1][:-2]
+                    obj_nspace = ''.join(re.split("(/)", split_prefix[0])[:-1])
+                else:
+                    obj_keywords = contents[2].rsplit('/', 1)[-1].replace(":", "")[:-2]
+                    obj_nspace = get_name_space(contents[2], False)
             elif "#" in contents[2]:
                 obj_keywords = contents[2].rsplit('#', 1)[-1].replace(":", "")[:-2]
+
 
             # if predicate-property is included in ext_fields - build properties indexes
             if config.prop and contents[1] in config.ext_fields.values():
