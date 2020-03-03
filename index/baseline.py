@@ -185,7 +185,7 @@ def controller(config_f):
     global finished_files
     finished_files = manager.list()
     p = Pool(config.instances)
-    p.map(baseline_index, ttlfiles)
+    p.map(baseline_index, all_files)
 
     end = timer()
 
