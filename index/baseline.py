@@ -1,4 +1,5 @@
 import glob
+import os
 import re
 import time
 from pathlib import Path
@@ -187,7 +188,7 @@ def controller(config_f):
     global finished_files
     finished_files = manager.list()
     p = Pool(config.instances)
-    p.map(baseline_index, ttl_files)
+    p.map(baseline_index, ttlfiles)
 
     end = timer()
 
