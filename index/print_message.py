@@ -26,8 +26,8 @@ def verification_message(config):
 
     options_str += "\n\t index.data: " + config.rdf_dir + \
                    "\n\t index.instances: " + str(config.instances) + \
-                   "\n\t elastic_address: " + config.elastic_address + \
-                   "\n\t elastic_port: " + str(config.elastic_port)
+                   "\n\t elastic.address: " + config.elastic_address + \
+                   "\n\t elastic.port: " + str(config.elastic_port)
 
     print(options_str)
     input("Press Enter to continue...")
@@ -72,8 +72,10 @@ def extended_process(stats):
 def extended_finished(config, stats, docs_num):
     print("Elas4RDF: Successfully created index: " +
           "\n\t 1. extended - \'" + config.ext_index + "\' " + "(" + str(docs_num) + " triples)" +
-          "\n\t\t with extended fields - " + str(config.ext_fields.keys()) +
-          "")
+          "\n\t\t with extended fields - ", end='')
+    for field in config.ext_fields.keys():
+        print("(" + field + ") ", end='')
+    print('')
 
     if config.verbose:
         print("\telapsed time " + stats)

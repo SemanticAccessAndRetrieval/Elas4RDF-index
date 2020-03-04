@@ -110,10 +110,8 @@ def extended_index(input_file):
             if config.ext_inc_sub:
 
                 for prop_name in config.ext_fields.keys():
-
-                    if prop_maps.__contains__(sub_keywords):
-                        doc[prop_name + "_sub"] = prop_maps[sub_keywords]
-
+                    if prop_maps.__contains__(sub_keywords + "_" + prop_name):
+                        doc[prop_name + "_sub"] = prop_maps[sub_keywords + "_" + prop_name]
                     else:
                         prop_res = el_controller.search(prop_name, 150, get_property(sub_keywords))
 
@@ -122,13 +120,14 @@ def extended_index(input_file):
                             for prop_hit in prop_res['hits']['hits']:
                                 doc[prop_name + "_sub"].append(" " + prop_hit["_source"][prop_name])
 
-                            prop_maps[sub_keywords] = doc[prop_name + "_sub"]
+                            prop_maps[sub_keywords + "_" + prop_name] = doc[prop_name + "_sub"]
 
             # retrieve all predicate's properties (described in ext_fields)
             if config.ext_inc_pre and is_resource(pre_nspace):
+
                 for prop_name in config.ext_fields.keys():
-                    if prop_maps.__contains__(pre_keywords):
-                        doc[prop_name + "_pre"] = prop_maps[pre_keywords]
+                    if prop_maps.__contains__(pre_keywords + "_" + prop_name):
+                        doc[prop_name + "_pre"] = prop_maps[pre_keywords + "_" + prop_name]
                     else:
                         prop_res = el_controller.search(prop_name, 150, get_property(pre_keywords))
 
@@ -137,14 +136,14 @@ def extended_index(input_file):
                             for prop_hit in prop_res['hits']['hits']:
                                 doc[prop_name + "_pre"].append(" " + prop_hit["_source"][prop_name])
 
-                            prop_maps[pre_keywords] = doc[prop_name + "_pre"]
+                            prop_maps[pre_keywords + "_" + prop_name] = doc[prop_name + "_pre"]
 
             # retrieve all object's properties (described in ext_fields)
             if config.ext_inc_obj and is_resource(obj_nspace):
 
                 for prop_name in config.ext_fields.keys():
-                    if prop_maps.__contains__(obj_keywords):
-                        doc[prop_name + "_obj"] = prop_maps[obj_keywords]
+                    if prop_maps.__contains__(obj_keywords + "_" + prop_name):
+                        doc[prop_name + "_obj"] = prop_maps[obj_keywords + "_" + prop_name]
                     else:
                         prop_res = el_controller.search(prop_name, 150, get_property(obj_keywords))
 
@@ -153,7 +152,7 @@ def extended_index(input_file):
                             for prop_hit in prop_res['hits']['hits']:
                                 doc[prop_name + "_obj"].append(" " + prop_hit["_source"][prop_name])
 
-                            prop_maps[obj_keywords] = doc[prop_name + "_obj"]
+                            prop_maps[obj_keywords + "_" + prop_name] = doc[prop_name + "_obj"]
 
             try:
                 # add insert action
@@ -170,11 +169,12 @@ def extended_index(input_file):
                     del bulk_actions[0:len(bulk_actions)]
 
             except elasticsearch.ElasticsearchException as es:
-                print("Elas4RDF: Exception occured, skipping file: " + input_file)
+                print("Elas4RDF: Exception occured (skipping line), in file: " + input_file)
                 if (config.verbose):
                     print(str(es))
 
-            line = fp.readline()
+            finally:
+                line = fp.readline()
             ####
 
     # flush any action that is left inside the bulk actions

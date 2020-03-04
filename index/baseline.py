@@ -20,9 +20,11 @@ def get_name_space(triple_part, pred_flag):
 
     return n_space
 
+
 # is a prefix included in uri
 def contains_prefix(uri):
     return uri.rsplit(':', 1)[0].__contains__(":")
+
 
 # main method for indexing - accepts an input file
 def baseline_index(input_file):
@@ -85,7 +87,6 @@ def baseline_index(input_file):
             elif "#" in contents[2]:
                 obj_keywords = contents[2].rsplit('#', 1)[-1].replace(":", "")[:-2]
 
-
             # if predicate-property is included in ext_fields - build properties indexes
             if config.prop and contents[1] in config.ext_fields.values():
 
@@ -129,11 +130,11 @@ def baseline_index(input_file):
 
             except elasticsearch.ElasticsearchException as es:
 
-                print("Elas4RDF: Exception occured, skipping file: " + input_file)
+                print("Elas4RDF: Exception occured (skipping line), in file: " + input_file)
                 if (config.verbose):
                     print(str(es))
-
-            line = fp.readline()
+            finally:
+                line = fp.readline()
             ####
 
     # flush any action that is left inside the bulk actions
