@@ -229,6 +229,29 @@ def properties_exist(config):
     return exist
 
 
+# create an output config for later use (e.g. from a search-service)
+def output_config(config):
+    output = open("output.conf", "w")
+
+    if config.base:
+        output.write("base.name" + "\t" + config.base_index + "\n")
+        output.write("base.include_uri" + "\t" + str(config.inc_uris) + "\n")
+        output.write("base.include_namespace" + "\t" + str(config.inc_nspace) + "\n")
+
+    if config.ext:
+        output.write("ext.name" + "\t" + config.ext_index + "\n")
+        output.write("ext.name" + "\t")
+        for field in config.ext_fields.keys():
+            output.write(field + ";")
+        output.write("\n")
+        output.write("ext.include_sub" + "\t" + str(config.ext_inc_sub) + "\n")
+        output.write("ext.include_pre" + "\t" + str(config.ext_inc_pre) + "\n")
+        output.write("ext.include_obj" + "\t" + str(config.ext_inc_obj) + "\n")
+
+    output.write("elastic.address" + "\t" + config.elastic_address + "\n")
+    output.write("elastic.address" + "\t" + str(config.elastic_address))
+
+
 def main():
     # setting up arguments parser
     parser = argparse.ArgumentParser(description='\'Indexer for generating the baseline and/or extended index\'')
@@ -258,6 +281,9 @@ def main():
             index_extended(config)
         else:
             exit(-1)
+
+    # generate .config output file
+    output_config(config)
 
 
 if __name__ == "__main__":
