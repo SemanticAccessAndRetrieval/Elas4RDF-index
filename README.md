@@ -9,7 +9,7 @@ Models two different indexing perspectives in both of which each ES doc represen
 2. *extended* : extends baseline document by including additional information for each triple component (if it is a resource - URI). Additional information corresponds to values of properties that can be given as input (e.g. *rdfs:comment*).
 
 
-This project automates the indexing process and can be applied over any environment that runs Elasticsearch & Python3.
+This project automates the indexing process and can be applied over any environment that runs Elasticsearch & Python 3.
 ### Setup
 Download an Elastic search package  (e.g. v=elasticsearch-6.8.0). After extracting all contents, start an instance:
 ```
@@ -22,7 +22,7 @@ Next, install all requirements needed for our scripts as described in requiremen
 ```
 
 ## Indexer service 
-Start indexing process by running ```indexer_service.py``` which accepts a single parameter, the configuration file (-cfile). This (.tsv) file 
+Start indexing process by running ```indexer_service.py``` which accepts a single parameter, the configuration file (-cfile). This (.properties) file 
 contains all necessary configuration for the process. Options include:
 
 * **baseline** & **extended** index
@@ -30,25 +30,24 @@ contains all necessary configuration for the process. Options include:
 
 
 ```
-indexing.base.name	<baseline_name>
-indexing.base.include_uri	<yes,no>    # index keywords derived from the URI part
-indexing.base.include_namespace	<yes,no>    # index keywords derived from the namespace part
-indexing.baseline	<yes,no>
-indexing.properties.index	<yes,no>     
-indexing.extend	<yes,no>
-indexing.ext.name   <extended_name>
-indexing.ext.fields <name_1>;<URI_1> <name_2>;<URI_2> 
-indexing.ext.include_sub    <yes,no>
-indexing.ext.include_obj    <yes,no>
+index.base.name=<baseline_name>     
+index.base.include_uri=<yes,no>          # index keywords derived from the URI part
+index.base.include_namespace=<yes,no>    # index keywords derived from the namespace part
+index.baseline=<yes,no>                  # create baseline index (?)
+index.extend=<yes,no>                    # create extended index (?)
+index.ext.name=<extended_name>         
+index.ext.fields=<name_1>;<URI_1> <name_2>;<URI_2>  # specify the extended properties
+index.ext.include_sub=<yes,no>           # extend subject properties (?)
+index.ext.include_pre=<yes,no>           # extend predicate properties (if a resource) (?)
+index.ext.include_obj=<yes,no>           # extend object properties (if a resource) (?)
 ```
 
 * **elastic** & other options:
 ```
-indexing.data	<RDF_dir>
-elastic.address	<host_name>
-elastic.port	<port_number>
+index.data=<RDF_dir>            # input directory
+elastic.address=<host_name>     # defaults to 'localhost'
+elastic.port=<port_number>      # defaults to '9200'
 ```
-Examples of configuration files are included in ```res/configuration```. 
+Examples of .properties files are included in ```res/configuration```. 
 
-
-Note that RDF files are expected to be in the form of N-triples syntax (.nt).
+Note that RDF files (inside input directory) are expected to be of N-triples syntax (.nt).
