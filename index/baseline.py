@@ -43,7 +43,7 @@ def baseline_index(input_file):
         line = fp.readline()
         while line:
 
-            # not a valid .ttl line
+            # not a valid .nt line
             if "<" not in line:
                 line = fp.readline()
                 continue
@@ -168,16 +168,16 @@ def controller(config_f):
 
     rdf_dir = config.rdf_dir
 
-    # count.ttl files
+    # count.nt files
     global total_files
     total_files = []
-    for path in Path(rdf_dir).rglob('*.ttl'):
+    for path in Path(rdf_dir).rglob('*.nt'):
         total_files.append(str(path.absolute()))
 
     print_message.baseline_starting(config, str(len(total_files)))
 
-    # list all .ttl files of input RDF_DIRs
-    all_files = glob.glob(rdf_dir + '/**/*.ttl', recursive=True)
+    # list all .nt files of input RDF_DIRs
+    all_files = glob.glob(rdf_dir + '/**/*.nt', recursive=True)
 
     start = timer()
 

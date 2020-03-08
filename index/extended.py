@@ -21,7 +21,10 @@ def get_name_space(triple_part, pred_flag):
 
 
 def is_resource(full_uri):
-    return full_uri in name_spaces
+    for nspace in name_spaces:
+        if full_uri.__contains__(nspace):
+            return True
+    return False
 
 
 # if a prefix is included in uri
@@ -215,16 +218,16 @@ def controller(config_f):
 
     rdf_dir = config.rdf_dir
 
-    # count.ttl files
+    # count.nt files
     global total_files
     total_files = []
-    for path in Path(rdf_dir).rglob('*.ttl'):
+    for path in Path(rdf_dir).rglob('*.nt'):
         total_files.append(str(path.absolute()))
 
     print_message.extended_starting(config, str(len(total_files)))
 
-    # list all .ttl files of input RDF_DIR
-    all_files = glob.glob(rdf_dir + '/**/*.ttl', recursive=True)
+    # list all .nt files of input RDF_DIR
+    all_files = glob.glob(rdf_dir + '/**/*.nt', recursive=True)
 
     start = timer()
 

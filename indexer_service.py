@@ -47,7 +47,7 @@ def init_config_file(cfile):
             elif line[0] == "indexing.base.include_uri":
                 if line[1] == "yes":
                     config.inc_uris = True
-                elif line[0] == "no":
+                elif line[1] == "no":
                     config.inc_uris = False
                 else:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
@@ -88,11 +88,12 @@ def init_config_file(cfile):
                 config.ext_index = line[1]
 
             elif line[0] == "indexing.ext.fields":
-                if len(line[1].rsplit(" ", 1)) == 0:
+                if len(line[1].rsplit(" ")) == 0:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
                         1] + ' not recognized.')
                     sys.exit(-1)
-                for field_entry in line[1].rsplit(" ", 1):
+                for field_entry in line[1].rsplit(" "):
+                    print(field_entry)
                     if len(field_entry.rsplit(";", 1)) == 0:
                         print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
                             1] + ' not recognized.')
@@ -232,24 +233,41 @@ def properties_exist(config):
 # create an output config for later use (e.g. from a search-service)
 def output_config(config):
     output = open("output.conf", "w")
-
-    if config.base:
-        output.write("base.name" + "\t" + config.base_index + "\n")
-        output.write("base.include_uri" + "\t" + str(config.inc_uris) + "\n")
-        output.write("base.include_namespace" + "\t" + str(config.inc_nspace) + "\n")
+    fields = []
 
     if config.ext:
-        output.write("ext.name" + "\t" + config.ext_index + "\n")
-        output.write("ext.name" + "\t")
-        for field in config.ext_fields.keys():
-            output.write(field + ";")
-        output.write("\n")
-        output.write("ext.include_sub" + "\t" + str(config.ext_inc_sub) + "\n")
-        output.write("ext.include_pre" + "\t" + str(config.ext_inc_pre) + "\n")
-        output.write("ext.include_obj" + "\t" + str(config.ext_inc_obj) + "\n")
+        index = config.ext_index
+    else:
+        index = config.base_index
 
-    output.write("elastic.address" + "\t" + config.elastic_address + "\n")
-    output.write("elastic.address" + "\t" + str(config.elastic_address))
+    if config.inc_uris:
+        fields.append("subjectKeywords")
+        fields.append("predicateKeywords")
+        fields.append("objectKeywords")
+
+    if config.inc_nspace:
+        fields.append("subjectNspaceKeys")
+        fields.append("predicateNspaceKeys")
+        fields.append("objectNspaceKeys")
+
+    if config.ext:
+        output.write("ext.fields" + "=")
+        for ext_field in config.ext_fields.keys():
+            fields.append(ext_field)
+
+    output.write("index.name" + "=" + index + "\n")
+
+    output.write("index.fields" + "=")
+    for field in fields:
+        output.write(field + ";")
+    output.write("\n")
+
+    output.write("ext.include_sub" "=" + str(config.ext_inc_sub) + "\n")
+    output.write("ext.include_pre" "=" + str(config.ext_inc_pre) + "\n")
+    output.write("ext.include_obj" "=" + str(config.ext_inc_obj) + "\n")
+
+    output.write("elastic.address" + "=" + config.elastic_address + "\n")
+    output.write("elastic.port" + "=" + str(config.elastic_port))
 
 
 def main():

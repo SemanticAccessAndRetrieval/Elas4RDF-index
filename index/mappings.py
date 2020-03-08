@@ -1,5 +1,6 @@
 import json
 
+
 def get_baseline(config):
     # prepare curl-commands
     # curl_put = 'curl -XPUT ' + '"' + config.elastic_address + ":" + config.elastic_port + "/" + config.base_index + '" ' + '-H \'Content-Type: application/json\' -d\''
@@ -9,8 +10,13 @@ def get_baseline(config):
         base_map = json.load(file)
 
     if config.inc_uris:
-        pass
+        base_map['mappings']['_doc']['properties']['subjectKeywords']['type'] = "text"
+        base_map['mappings']['_doc']['properties']['predicateKeywords']['type'] = "text"
+        base_map['mappings']['_doc']['properties']['objectKeywords']['type'] = "text"
 
+        base_map['mappings']['_doc']['properties']['subjectKeywords']['analyzer'] = "m_analyzer"
+        base_map['mappings']['_doc']['properties']['predicateKeywords']['analyzer'] = "m_analyzer"
+        base_map['mappings']['_doc']['properties']['objectKeywords']['analyzer'] = "m_analyzer"
     else:
         base_map['mappings']['_doc']['properties']['subjectKeywords']['enabled'] = False
         base_map['mappings']['_doc']['properties']['predicateKeywords']['enabled'] = False
@@ -32,6 +38,7 @@ def get_baseline(config):
     ## curl-command, used for debuggin
     # curl_put += "\n" + json.dumps(base_map, indent=4, sort_keys=False) + '\''
 
+    print(base_map)
     return base_map
 
 
@@ -44,7 +51,14 @@ def get_extended(config):
         ext_map = json.load(file)
 
     if config.inc_uris:
-        pass
+        ext_map['mappings']['_doc']['properties']['subjectKeywords']['type'] = "text"
+        ext_map['mappings']['_doc']['properties']['predicateKeywords']['type'] = "text"
+        ext_map['mappings']['_doc']['properties']['objectKeywords']['type'] = "text"
+
+        ext_map['mappings']['_doc']['properties']['subjectKeywords']['analyzer'] = "m_analyzer"
+        ext_map['mappings']['_doc']['properties']['predicateKeywords']['analyzer'] = "m_analyzer"
+        ext_map['mappings']['_doc']['properties']['objectKeywords']['analyzer'] = "m_analyzer"
+
     else:
         ext_map['mappings']['_doc']['properties']['subjectKeywords']['enabled'] = False
         ext_map['mappings']['_doc']['properties']['predicateKeywords']['enabled'] = False

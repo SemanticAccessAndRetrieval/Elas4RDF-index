@@ -1,4 +1,4 @@
- {
+{
   "settings": {
     "index": {
       "number_of_shards": 3,
@@ -78,16 +78,10 @@
     "_doc": {
       "properties": {
         "subjectKeywords": {
-          "type": "text",
-          "analyzer": "m_analyzer"
         },
         "predicateKeywords": {
-          "type": "text",
-          "analyzer": "m_analyzer"
         },
         "objectKeywords": {
-          "type": "text",
-          "analyzer": "m_analyzer"
         },
         "subjectNspaceKeys": {
         },
