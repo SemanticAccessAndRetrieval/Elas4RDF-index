@@ -41,10 +41,10 @@ def init_config_file(cfile):
     with open(cfile) as tsvfile:
         tsvreader = csv.reader(tsvfile, delimiter="\t")
         for line in tsvreader:
-            if line[0] == "indexing.base.name":
+            if line[0] == "index.base.name":
                 config.base_index = line[1]
 
-            elif line[0] == "indexing.base.include_uri":
+            elif line[0] == "index.base.include_uri":
                 if line[1] == "yes":
                     config.inc_uris = True
                 elif line[1] == "no":
@@ -54,7 +54,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.base.include_namespace":
+            elif line[0] == "index.base.include_namespace":
                 if line[1] == "yes":
                     config.inc_nspace = True
                 elif line[1] == "no":
@@ -64,7 +64,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.baseline":
+            elif line[0] == "index.baseline":
                 if line[1] == "yes":
                     config.base = True
                 elif line[1] == "no":
@@ -74,7 +74,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.extend":
+            elif line[0] == "index.extend":
                 if line[1] == "yes":
                     config.ext = True
                 elif line[1] == "no":
@@ -84,10 +84,10 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.ext.name":
+            elif line[0] == "index.ext.name":
                 config.ext_index = line[1]
 
-            elif line[0] == "indexing.ext.fields":
+            elif line[0] == "index.ext.fields":
                 if len(line[1].rsplit(" ")) == 0:
                     print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
                         1] + ' not recognized.')
@@ -105,7 +105,7 @@ def init_config_file(cfile):
                         config.ext_fields[field_name] = field
                         config.prop = True
 
-            elif line[0] == "indexing.ext.include_sub":
+            elif line[0] == "index.ext.include_sub":
                 if line[1] == "yes":
                     config.ext_inc_sub = True
                 elif line[1] == "no":
@@ -115,7 +115,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.ext.include_pre":
+            elif line[0] == "index.ext.include_pre":
                 if line[1] == "yes":
                     config.ext_inc_pre = True
                 elif line[1] == "no":
@@ -125,7 +125,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.ext.include_obj":
+            elif line[0] == "index.ext.include_obj":
                 if line[1] == "yes":
                     config.ext_inc_obj = True
                 elif line[1] == "no":
@@ -135,7 +135,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.data":
+            elif line[0] == "index.data":
                 if os.path.isdir(line[1]):
                     config.rdf_dir = line[1]
                 else:
@@ -143,7 +143,7 @@ def init_config_file(cfile):
                         1] + ' not a proper folder.')
                     sys.exit(-1)
 
-            elif line[0] == "indexing.instances":
+            elif line[0] == "index.instances":
                 try:
                     config.instances = int(line[1])
                 except ValueError:

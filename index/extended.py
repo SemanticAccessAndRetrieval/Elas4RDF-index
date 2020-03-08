@@ -231,7 +231,7 @@ def controller(config_f):
 
     start = timer()
 
-    # deploy index instances (as indicated in indexing.instances in -config)
+    # deploy index instances (as indicated in index.instances in -config)
     manager = Manager()
     global finished_files
     finished_files = manager.list()
