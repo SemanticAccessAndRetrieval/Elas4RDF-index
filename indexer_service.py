@@ -1,4 +1,5 @@
 import argparse
+import json
 import os
 import sys, csv
 
@@ -23,6 +24,7 @@ class Configuration(object):
         self.ext_inc_pre = True
         self.ext_inc_obj = True
 
+        self.dataset_id = ""
         self.rdf_dir = ""
         self.instances = 5
         self.elastic_address = "http://localhost"
@@ -231,9 +233,10 @@ def properties_exist(config):
 
 
 # create an output config for later use (e.g. from a search-service)
-def output_config(config):
-    output = open("output.conf", "w")
-    fields = []
+def output_properties(config):
+    output = open("output.json", "w")
+    conf_dict = {}
+    fields = {}
 
     if config.ext:
         index = config.ext_index
@@ -241,33 +244,29 @@ def output_config(config):
         index = config.base_index
 
     if config.inc_uris:
-        fields.append("subjectKeywords")
-        fields.append("predicateKeywords")
-        fields.append("objectKeywords")
+        fields["subjectKeywords"] = 1
+        fields["predicateKeywords"] = 1
+        fields["objectKeywords"] = 2
 
     if config.inc_nspace:
-        fields.append("subjectNspaceKeys")
-        fields.append("predicateNspaceKeys")
-        fields.append("objectNspaceKeys")
+        fields["subjectNspaceKeys"] = 1
+        fields["predicateNspaceKeys"] = 1
+        fields["objectNspaceKeys"] = 1
 
     if config.ext:
-        output.write("ext.fields" + "=")
         for ext_field in config.ext_fields.keys():
-            fields.append(ext_field)
+            if config.ext_inc_sub:
+                fields[ext_field + "_sub"] = 1
+            if config.ext_inc_pre:
+                fields[ext_field + "_pre"] = 1
+            if config.ext_inc_obj:
+                fields[ext_field + "_obj"] = 1
 
-    output.write("index.name" + "=" + index + "\n")
+    conf_dict["id"] = config.dataset_id
+    conf_dict["index.name"] = index
+    conf_dict["index.fields"] = fields
 
-    output.write("index.fields" + "=")
-    for field in fields:
-        output.write(field + ";")
-    output.write("\n")
-
-    output.write("ext.include_sub" "=" + str(config.ext_inc_sub) + "\n")
-    output.write("ext.include_pre" "=" + str(config.ext_inc_pre) + "\n")
-    output.write("ext.include_obj" "=" + str(config.ext_inc_obj) + "\n")
-
-    output.write("elastic.address" + "=" + config.elastic_address + "\n")
-    output.write("elastic.port" + "=" + str(config.elastic_port))
+    output.write(json.dumps(conf_dict, indent=4, sort_keys=False) + '\'')
 
 
 def main():
@@ -301,7 +300,7 @@ def main():
             exit(-1)
 
     # generate .config output file
-    output_config(config)
+    output_properties(config)
 
 
 if __name__ == "__main__":
