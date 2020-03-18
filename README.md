@@ -22,20 +22,21 @@ Next, install all requirements needed for our scripts as described in requiremen
 ```
 
 ## Indexer service 
-Start indexing process by running ```indexer_service.py``` which accepts a single parameter, the configuration file (-cfile). This (.properties) file 
+Start indexing process by running ```indexer_service.py``` with a single parameter, the configuration file (-cfile). This (.properties) file 
 contains all necessary configuration for the process. Options include:
 
 * **baseline** & **extended** index
 
-
-
 ```
-index.base.name=<baseline_name>     
-index.base.include_uri=<yes,no>          # index keywords derived from the URI part
-index.base.include_namespace=<yes,no>    # index keywords derived from the namespace part
-index.baseline=<yes,no>                  # create baseline index (?)
-index.extend=<yes,no>                    # create extended index (?)
-index.ext.name=<extended_name>         
+index.id=<data_id>                      # a unique id for the dataset
+
+index.base=<yes,no>                     # create baseline index (?)
+index.base.name=<baseline_name>         # ES index name
+index.base.include_uri=<yes,no>         # index keywords derived from the URI part
+index.base.include_namespace=<yes,no>   # index keywords derived from the namespace part
+
+index.ext=<yes,no>                      # create extended index (?)
+index.ext.name=<extended_name>          # ES index name      
 index.ext.fields=<name_1>;<URI_1> <name_2>;<URI_2>  # specify the extended properties
 index.ext.include_sub=<yes,no>           # extend subject properties (?)
 index.ext.include_pre=<yes,no>           # extend predicate properties (if a resource) (?)
