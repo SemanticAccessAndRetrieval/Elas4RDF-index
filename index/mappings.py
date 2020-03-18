@@ -38,7 +38,7 @@ def get_baseline(config):
     ## curl-command, used for debuggin
     # curl_put += "\n" + json.dumps(base_map, indent=4, sort_keys=False) + '\''
 
-    print(base_map)
+    # print(base_map)
     return base_map
 
 

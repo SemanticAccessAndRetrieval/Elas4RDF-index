@@ -1,5 +1,4 @@
-import sys
-
+#### general ####
 def verification_message(config):
     print("Elas4RDF: configuration file loaded successfully")
     print("Create the following indexes: ", end='')
@@ -33,16 +32,17 @@ def verification_message(config):
     input("Press Enter to continue...")
 
 
+def finished(output_path):
+    print()
+    print("Elas4RDF: Finished process. Output configuration: " + output_path)
+
+#### baseline ####
 def baseline_starting(config, stats):
     if config.prop:
         print("Elas4RDF: Baseline & properties indexing started .. ", end='')
     else:
         print("Elas4RDF: Baseline indexing started .. ", end='')
     print("Files : " + stats)
-
-
-def baseline_process(stats):
-    pass
 
 
 def baseline_finised(config, stats, docs_num):
@@ -60,13 +60,11 @@ def baseline_finised(config, stats, docs_num):
         print("\telapsed time " + stats)
 
 
+#### extended ####
 def extended_starting(config, stats):
+    print()
     print("Elas4RDF: Extended '" + config.ext_index + "' indexing started .. ", end='')
     print("Files : " + stats)
-
-
-def extended_process(stats):
-    pass
 
 
 def extended_finished(config, stats, docs_num):

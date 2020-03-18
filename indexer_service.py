@@ -41,9 +41,27 @@ def init_config_file(cfile):
 
     config = Configuration()
     with open(cfile) as tsvfile:
-        tsvreader = csv.reader(tsvfile, delimiter="\t")
+        tsvreader = csv.reader(tsvfile, delimiter="=")
         for line in tsvreader:
-            if line[0] == "index.base.name":
+
+            # ignore empty lines
+            if len(line) == 0:
+                continue
+
+            if line[0] == "index.id":
+                config.dataset_id = line[1]
+
+            elif line[0] == "index.base":
+                if line[1] == "yes":
+                    config.base = True
+                elif line[1] == "no":
+                    config.base = False
+                else:
+                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
+                        1] + ' not recognized.')
+                    sys.exit(-1)
+
+            elif line[0] == "index.base.name":
                 config.base_index = line[1]
 
             elif line[0] == "index.base.include_uri":
@@ -66,17 +84,7 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
 
-            elif line[0] == "index.baseline":
-                if line[1] == "yes":
-                    config.base = True
-                elif line[1] == "no":
-                    config.base = False
-                else:
-                    print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[0] + " " + line[
-                        1] + ' not recognized.')
-                    sys.exit(-1)
-
-            elif line[0] == "index.extend":
+            elif line[0] == "index.ext":
                 if line[1] == "yes":
                     config.ext = True
                 elif line[1] == "no":
@@ -95,7 +103,6 @@ def init_config_file(cfile):
                         1] + ' not recognized.')
                     sys.exit(-1)
                 for field_entry in line[1].rsplit(" "):
-                    print(field_entry)
                     if len(field_entry.rsplit(";", 1)) == 0:
                         print('Error,' + '\'' + cfile + '\'' + ' is not a proper config file: ' + line[
                             1] + ' not recognized.')
@@ -234,7 +241,8 @@ def properties_exist(config):
 
 # create an output config for later use (e.g. from a search-service)
 def output_properties(config):
-    output = open("output.json", "w")
+    output_name = "output.json"
+    output = open(output_name, "w")
     conf_dict = {}
     fields = {}
 
@@ -266,7 +274,9 @@ def output_properties(config):
     conf_dict["index.name"] = index
     conf_dict["index.fields"] = fields
 
-    output.write(json.dumps(conf_dict, indent=4, sort_keys=False) + '\'')
+    output.write(json.dumps(conf_dict, indent=4, sort_keys=False))
+
+    return os.path.abspath(output_name)
 
 
 def main():
@@ -300,7 +310,9 @@ def main():
             exit(-1)
 
     # generate .config output file
-    output_properties(config)
+    file_path = output_properties(config)
+
+    print_message.finished(file_path)
 
 
 if __name__ == "__main__":

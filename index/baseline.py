@@ -174,6 +174,10 @@ def controller(config_f):
     for path in Path(rdf_dir).rglob('*.nt'):
         total_files.append(str(path.absolute()))
 
+    if len(total_files) == 0:
+        print('Elas4RDF error: No RDF files (.nt) found in the specified folder')
+        exit(-1)
+
     print_message.baseline_starting(config, str(len(total_files)))
 
     # list all .nt files of input RDF_DIRs
