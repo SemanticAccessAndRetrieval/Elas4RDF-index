@@ -65,7 +65,7 @@ def extended_index(input_file):
                 line = fp.readline()
                 continue
 
-            line = line.replace("<", "").replace(">", "").replace("\n", "")
+            line = line.replace("<", "").replace(">", "").replace("\n", "").replace("\t"," ")
             contents = line.split(" ", 2)
 
             if len(contents) < 3:
